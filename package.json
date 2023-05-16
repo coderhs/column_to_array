@@ -1,5 +1,10 @@
 {
   "devDependencies": {
     "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.3",
+    "popper.js": "^1.16.1",
+    "ruby-head-wasm-wasi": "^0.6.0"
   }
 }
