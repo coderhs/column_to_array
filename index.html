@@ -2,6 +2,7 @@
   <head>
       <title>Convert Column to Array using ruby (WASM)</title>
       <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="node_modules/prismjs/themes/prism.css" rel="stylesheet">
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
@@ -18,10 +19,25 @@
         <div class="col-6"><textarea id="output" class="form-control" style="height: 240px"></textarea></div>
       </div>
     </div>
+    <div class="row justify-content-md-center">
+      <pre style="border: solid 1px" class="col-6 ">
+        <code class="language-ruby">
+            # Ruby code that is running in the browser
+            require "js"
+            document = JS.global[:document]
+            button = document.getElementById "convert_text"
+            input_text  = document.getElementById "input"
+            result = document.getElementById "output"
+            button.addEventListener "click" do |e|
+              luckiness = input_text[:value].to_s
+              result[:innerText] = luckiness.split("\n").to_s
+            end
+        </code>
+      </pre>
+    </div>
   </body>
   <script src="node_modules/ruby-head-wasm-wasi/dist/browser.script.iife.js"></script>
   <link href="node_modules/bootstrap/dist/js/bootstrap.min.js" rel="stylesheet">
-
   <script type="text/ruby">
     require "js"
     document = JS.global[:document]
@@ -33,4 +49,6 @@
       result[:innerText] = luckiness.split("\n").to_s
     end
   </script>
+  <script src="node_modules/prismjs/components/prism-core.js"></script>
+  <script src="node_modules/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>
 </html>
