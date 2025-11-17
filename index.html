@@ -1,52 +1,112 @@
 <html>
   <head>
-      <title>Convert Column to Array using ruby (WASM)</title>
-      <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-      <link href="node_modules/prismjs/themes/prism.css" rel="stylesheet">
+    <title>Convert Column to Array using ruby (WASM)</title>
+    <link
+      href="node_modules/bootstrap/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="node_modules/prismjs/themes/prism.css" rel="stylesheet" />
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
       <a class="navbar-brand" href="#">Column to Array</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarsExampleDefault"
+        aria-controls="navbarsExampleDefault"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
     </nav>
 
     <div class="mt-4 p-4">
       <div class="row">
-        <div class="col-5"><textarea id="input" class="form-control" style="height: 240px" placeholder="Paste the column copied from your MS-Excel Sheet or LibreOffice Calc or Google Sheet here"></textarea></div>
-        <div class="col-1 text-center d-flex align-items-center justify-content-center"><button id="convert_text" class="btn btn-success">Convert</button></div>
-        <div class="col-6"><textarea id="output" class="form-control" style="height: 240px" readonly></textarea></div>
+        <div class="col-5" style="display: flex; align-items: stretch">
+          <textarea
+            id="input"
+            class="form-control"
+            style="height: 240px"
+            placeholder="Paste the column copied from your MS-Excel Sheet or LibreOffice Calc or Google Sheet here"
+          ></textarea>
+        </div>
+        <div
+          class="col-1 text-center d-flex align-items-center justify-content-center"
+        >
+          <button id="convert_text" class="btn btn-success">Convert</button>
+        </div>
+        <div class="col-6">
+          <div class="row h-100">
+            <div class="col-12 mb-2">
+              <textarea
+                id="output"
+                class="form-control"
+                style="height: 117px"
+                readonly
+              ></textarea>
+            </div>
+            <div class="col-12">
+              <textarea
+                id="output2"
+                class="form-control"
+                style="height: 117px"
+                readonly
+              ></textarea>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="row justify-content-md-center">
-      <pre style="border: solid 1px" class="col-6 ">
+      <pre style="border: solid 1px" class="col-6">
         <code class="language-ruby">
-            # Ruby code that is running in the browser
-            require "js"
-            document = JS.global[:document]
-            button = document.getElementById "convert_text"
-            input_text  = document.getElementById "input"
-            result = document.getElementById "output"
-            button.addEventListener "click" do |e|
-              luckiness = input_text[:value].to_s
-              result[:innerText] = luckiness.split("\n").to_s
+          require "js"
+          document = JS.global[:document]
+          button = document.getElementById "convert_text"
+          input_text  = document.getElementById "input"
+          result = document.getElementById "output"
+          result2 = document.getElementById "output2"
+          button.addEventListener "click" do |e|
+            luckiness = input_text[:value].to_s
+            result[:innerText] = luckiness.split("\n").to_s
+            values = luckiness.split("\n").map do |val|
+              if val.match?(/^\d+$/)
+                val
+              else
+                "\"#{val}\""
+              end
             end
+            result2[:innerText] = values.join(', ')
         </code>
       </pre>
     </div>
   </body>
   <script src="node_modules/ruby-head-wasm-wasi/dist/browser.script.iife.js"></script>
-  <link href="node_modules/bootstrap/dist/js/bootstrap.min.js" rel="stylesheet">
+  <link
+    href="node_modules/bootstrap/dist/js/bootstrap.min.js"
+    rel="stylesheet"
+  />
   <script type="text/ruby">
     require "js"
     document = JS.global[:document]
     button = document.getElementById "convert_text"
     input_text  = document.getElementById "input"
     result = document.getElementById "output"
+    result2 = document.getElementById "output2"
     button.addEventListener "click" do |e|
       luckiness = input_text[:value].to_s
       result[:innerText] = luckiness.split("\n").to_s
+      values = luckiness.split("\n").map do |val|
+        if val.match?(/^\d+$/)
+          val
+        else
+          "\"#{val}\""
+        end
+      end
+      result2[:innerText] = values.join(', ')
     end
   </script>
   <script src="node_modules/prismjs/components/prism-core.js"></script>
