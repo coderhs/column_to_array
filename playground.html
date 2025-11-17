@@ -1,0 +1,165 @@
+<html>
+  <head>
+    <title>Ruby WASM Playground</title>
+    <link
+      href="node_modules/bootstrap/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="node_modules/prismjs/themes/prism.css" rel="stylesheet" />
+    <style>
+      .code-editor {
+        display: flex;
+        height: 400px;
+        border: 1px solid #ccc;
+        background: #f8f8f8;
+      }
+      .line-numbers {
+        background: #eee;
+        color: #999;
+        padding: 10px 5px;
+        text-align: right;
+        font-family: monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        user-select: none;
+        overflow: hidden;
+        min-width: 40px;
+        white-space: pre;
+      }
+      #code_input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        resize: none;
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">Column to Array</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="navbar-brand text-danger" href="playground.html"
+                >Ruby Playground</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+      <div class="row">
+        <div class="col-6">
+          <h4>Write Ruby Code</h4>
+          <div class="code-editor">
+            <div id="line_numbers" class="line-numbers">1</div>
+            <textarea
+              id="code_input"
+              placeholder="# Write your Ruby code here
+puts 'Hello from Ruby WASM!'
+[1, 2, 3].map { |x| x * 2 }"
+            ></textarea>
+          </div>
+          <div class="mt-2">
+            <button id="run_code" class="btn btn-primary">Run Code</button>
+            <button id="clear_output" class="btn btn-secondary">
+              Clear Output
+            </button>
+          </div>
+        </div>
+        <div class="col-6">
+          <h4>Output</h4>
+          <pre
+            id="output"
+            class="border p-3"
+            style="height: 400px; background-color: #f5f5f5; overflow: auto"
+          ></pre>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="node_modules/ruby-head-wasm-wasi/dist/browser.script.iife.js"></script>
+  <script type="text/ruby">
+    require "js"
+    document = JS.global[:document]
+    button = document.getElementById "run_code"
+    clear_btn = document.getElementById "clear_output"
+    code_input = document.getElementById "code_input"
+    output = document.getElementById "output"
+
+    button.addEventListener "click" do |e|
+      code = code_input[:value].to_s
+      output[:innerText] = ""
+
+      begin
+        captured_output = []
+
+        # Override puts and print to capture output
+        def puts(*args)
+          $captured_output ||= []
+          args.each { |arg| $captured_output << arg.to_s }
+          nil
+        end
+
+        def print(*args)
+          $captured_output ||= []
+          $captured_output << args.map(&:to_s).join
+          nil
+        end
+
+        $captured_output = []
+        result = eval(code)
+
+        output_text = ""
+        output_text += $captured_output.join("\n") + "\n" if $captured_output.any?
+        output_text += "=> #{result.inspect}" if result != nil || $captured_output.empty?
+        output[:innerText] = output_text
+      rescue => error
+        output[:innerText] = "Error: #{error.message}\n#{error.backtrace.join("\n")}"
+      end
+    end
+
+    clear_btn.addEventListener "click" do |e|
+      output[:innerText] = ""
+    end
+
+    # Update line numbers
+    line_numbers = document.getElementById "line_numbers"
+
+    update_line_numbers = proc do
+      lines = code_input[:value].to_s.split("\n").length
+      line_numbers[:innerHTML] = (1..lines).to_a.join("\n")
+    end
+
+    code_input.addEventListener "input" do |e|
+      update_line_numbers.call
+    end
+
+    code_input.addEventListener "scroll" do |e|
+      line_numbers[:scrollTop] = code_input[:scrollTop]
+    end
+
+    update_line_numbers.call
+  </script>
+  <script src="node_modules/prismjs/components/prism-core.js"></script>
+  <script src="node_modules/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>
+</html>
